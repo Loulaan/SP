@@ -34,7 +34,7 @@ template <class T> Vector<T>::Vector(const Vector &other) : capacity(other.capac
 
 template <class T> Vector<T>::Vector(Vector &&other) noexcept : capacity(0), length(0), data(nullptr) {  // Move-конструктор.
     swap(other);  // меняется ли местами nullptr?
-    other.data = nullptr;
+//    other.data = nullptr;
 }
 
 template <class T> Vector<T>::~Vector() { delete[] data; }
@@ -68,11 +68,6 @@ template <class T> Vector<T>& Vector<T>::operator=(Vector &&other) noexcept {  /
     return *this;
 }
 
-template <class T> T Vector<T>::operator[](unsigned int idx){
-    assert(idx < length);
-    return data[idx];
-};
-
 template <class T> void Vector<T>::swap(Vector &other) {
     using std::swap;
     swap(capacity, other.capacity);
@@ -92,7 +87,7 @@ template <class T> typename Vector<T>::const_iterator Vector<T>::begin() const {
 
 template <class T> typename Vector<T>::iterator Vector<T>::end() {
     assert(length != 0);
-    return data + length;
+    return data + length - 1;
 }
 
 template <class T> typename Vector<T>::const_iterator Vector<T>::end() const{
@@ -102,10 +97,10 @@ template <class T> typename Vector<T>::const_iterator Vector<T>::end() const{
 
 template <class T> unsigned int Vector<T>::size() { return length; }
 
-template <class T> void Vector<T>::push_back(T &value) {  // push_back с копированием
+template <class T> void Vector<T>::push_back(const T &value) {  // push_back с копированием
     if (length == capacity)
         resize(capacity + 1);
-    data[length++] = std::forward<T>(value);
+    data[length++] = value;
 }
 
 template <class T> void Vector<T>::push_back(T &&value) {  // push_back с копированием
@@ -114,9 +109,33 @@ template <class T> void Vector<T>::push_back(T &&value) {  // push_back с ко�
     data[length++] = std::move(value);
 }
 
-template <class T> void Vector<T>::pop_back() { --length; }
+template <class T> void Vector<T>::pop_back() { erase(end()); }  // erase с ласт элементом
 
-template <class T> void Vector<T>::erase() {
+template <class T> void Vector<T>::erase(iterator iter){
+    iterator iterCurr = iter;
+    while (iterCurr < end() && iter < end()) {
+        iter->~T();
+        *iterCurr++ = *(++iter);
+    }
+    --length;
+}
+
+template <class T> void Vector<T>::erase(iterator iterStart, iterator iterEnd){
+    assert(iterStart <= iterEnd);
+    iterator iterCurr = iterStart;
+    while (iterEnd < end()){
+        iterCurr->~T();
+        *iterCurr++ = *(++iterEnd);
+    }
+    length -= (iterEnd - iterStart);
+}
+
+template <class T> typename Vector<T>::iterator Vector<T>::at(unsigned int position) {
+    assert(position < length);
+    return data + position;
+}
+
+template <class T> void Vector<T>::clear() {
     delete[] data;
     data = nullptr;
     length = 0;

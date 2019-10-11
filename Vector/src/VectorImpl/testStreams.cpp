@@ -12,8 +12,7 @@ int main(){
     Vector<std::ofstream> vStreams;
     for (int i = 1; i < 11; i++) {
         std::string name = std::to_string(i) + ".txt";
-        std::ofstream outStream(name);
-        vStreams.push_back(outStream);
+        vStreams.push_back(std::ofstream(name));
     }
     std::shuffle(vStreams.begin(), vStreams.end(), std::random_device());
     int num = 1;

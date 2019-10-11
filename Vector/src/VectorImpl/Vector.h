@@ -11,10 +11,10 @@ private:
     unsigned int length;
     unsigned int capacity;
     T* data;
-    void resize(int);
-public:
     typedef T* iterator;
     typedef const T* const_iterator;
+    void resize(int);
+public:
     Vector();
     explicit Vector(unsigned int);
     Vector(const Vector &);
@@ -22,7 +22,6 @@ public:
     ~Vector();
     Vector &operator=(const Vector &);
     Vector &operator=(Vector &&) noexcept;
-    T operator[](unsigned int);
     template<class T1>
     friend std::ostream &operator<<(std::ostream &out, const Vector<T1> &vector);
     void swap(Vector &);
@@ -31,10 +30,16 @@ public:
     typename Vector::iterator end();
     typename Vector::const_iterator end() const;
     unsigned int size();
-    void push_back(T &);
+    void push_back(const T  &);
     void push_back(T &&);
     void pop_back();
-    void erase();
+    void clear();
+    void erase(iterator);
+    void erase(iterator, iterator);
+    typename Vector<T>::iterator at(unsigned int);
+//    void erase(typename Vector<T>::iterator);
+
+
 };
 
 #include "Vector.hpp"
