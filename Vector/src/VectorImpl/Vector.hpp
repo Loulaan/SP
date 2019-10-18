@@ -7,6 +7,9 @@
 #include <iostream>
 #include <cassert>
 #include <utility>
+#include <memory>
+#include <cstring>
+#include <initializer_list>
 
 template <class T> void Vector<T>::resize(int new_capacity) {
     capacity = new_capacity * 2;
@@ -33,34 +36,28 @@ template <class T> Vector<T>::Vector(const Vector &other) : capacity(other.capac
 }
 
 template <class T> Vector<T>::Vector(Vector &&other) noexcept : capacity(0), length(0), data(nullptr) {  // Move-конструктор.
-    swap(other);  // меняется ли местами nullptr?
-//    other.data = nullptr;
+    swap(other);
+}
+
+template <class T> Vector<T>::Vector(std::initializer_list<T> &list){
+    Vector(list.size());
+    for(auto &element : list)
+        this->push_back(element);
 }
 
 template <class T> Vector<T>::~Vector() { delete[] data; }
 
 template <class T> Vector<T> &Vector<T>::operator=(const Vector &other) {  // Оператор присваивания с копированием
     if (this != &other) {
-        capacity = other.capacity;
-        length = other.length;
-        delete[] data;
-        data = new T[capacity];
-        for (size_t i = 0; i != length; ++i)
-            data[i] = other.data[i];
+        auto copy = other;
+        swap(copy);
     }
     return *this;
 }
 
 template <class T> Vector<T>& Vector<T>::operator=(Vector &&other) noexcept {  // Оператор присванивания с перемещением.
     if (this != &other) {
-        capacity = std::move(other.capacity);
-        length = std::move(other.length);
-
-        delete[] data;
-        data = new T[capacity];
-        for (size_t i = 0; i != length; i++)
-            data[i] = std::move(other.data[i]);
-
+        swap(other);
         other.length = 0;
         other.capacity = 0;
         other.data = nullptr;
@@ -87,7 +84,7 @@ template <class T> typename Vector<T>::const_iterator Vector<T>::begin() const {
 
 template <class T> typename Vector<T>::iterator Vector<T>::end() {
     assert(length != 0);
-    return data + length - 1;
+    return data + length;
 }
 
 template <class T> typename Vector<T>::const_iterator Vector<T>::end() const{
@@ -103,31 +100,41 @@ template <class T> void Vector<T>::push_back(const T &value) {  // push_back с 
     data[length++] = value;
 }
 
-template <class T> void Vector<T>::push_back(T &&value) {  // push_back с копированием
+template <class T> void Vector<T>::push_back(T &&value) {  // push_back с перемещением
     if (length == capacity)
         resize(capacity + 1);
     data[length++] = std::move(value);
 }
 
-template <class T> void Vector<T>::pop_back() { erase(end()); }  // erase с ласт элементом
+template <class T> void Vector<T>::pop_back() { erase(end()); }
 
-template <class T> void Vector<T>::erase(iterator iter){
-    iterator iterCurr = iter;
-    while (iterCurr < end() && iter < end()) {
-        iter->~T();
-        *iterCurr++ = *(++iter);
+// Удаляет элемент в позиции pos.
+template <class T> typename Vector<T>::iterator Vector<T>::erase(iterator pos){
+    auto iterCurr = pos, iterAfterDeleted = pos + 1;
+    while (pos < end()) {
+        *iterCurr = std::move(*(++pos));
+        ++iterCurr;
     }
     --length;
+    iterCurr->~T();
+    return iterAfterDeleted;
 }
 
-template <class T> void Vector<T>::erase(iterator iterStart, iterator iterEnd){
-    assert(iterStart <= iterEnd);
-    iterator iterCurr = iterStart;
-    while (iterEnd < end()){
-        iterCurr->~T();
-        *iterCurr++ = *(++iterEnd);
+// Удаляет элементы в диапазоне [first; last).
+template <class T> typename Vector<T>::iterator Vector<T>::erase(iterator first, iterator last) {
+    assert(first < last);
+    int size = last - first;
+    auto startIt = first, endIt = last - 1;
+    while (endIt < end()) {
+        *startIt = std::move(*(++endIt));
+        ++startIt;
     }
-    length -= (iterEnd - iterStart);
+    while(startIt < end()){
+        startIt->~T();
+        ++startIt;
+    }
+    length -= size;
+    return last;
 }
 
 template <class T> typename Vector<T>::iterator Vector<T>::at(unsigned int position) {
@@ -140,13 +147,6 @@ template <class T> void Vector<T>::clear() {
     data = nullptr;
     length = 0;
     capacity = 0;
-}
-
-template <class T> std::ostream& operator<<(std::ostream &out, const Vector<T> &vector) {
-    for (size_t i = 0; i != vector.length; ++i)
-        out << vector.data[i] << ' ';
-    std::cout << std::endl;
-    return out;
 }
 
 template <class T> void swap(Vector<T>& v1, Vector<T>& v2){ v1.swap(v2); }

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <ostream>
+#include <initializer_list>
 
 template <class T> class Vector {
 private:
@@ -19,6 +20,7 @@ public:
     explicit Vector(unsigned int);
     Vector(const Vector &);
     Vector(Vector &&) noexcept;
+    Vector(std::initializer_list<T> &);
     ~Vector();
     Vector &operator=(const Vector &);
     Vector &operator=(Vector &&) noexcept;
@@ -34,12 +36,9 @@ public:
     void push_back(T &&);
     void pop_back();
     void clear();
-    void erase(iterator);
-    void erase(iterator, iterator);
-    typename Vector<T>::iterator at(unsigned int);
-//    void erase(typename Vector<T>::iterator);
-
-
+    typename Vector::iterator erase(iterator);
+    typename Vector::iterator erase(iterator, iterator);
+    typename Vector::iterator at(unsigned int);
 };
 
 #include "Vector.hpp"
