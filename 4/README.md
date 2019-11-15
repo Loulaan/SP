@@ -1,1 +1,1 @@
-# Implementation of [task](https://mirror.cmmshq.ru/spc/spc-04-tasks.pdf).
+# Implementation of [the task](https://mirror.cmmshq.ru/spc/spc-04-tasks.pdf).
