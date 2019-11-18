@@ -65,18 +65,21 @@ template <class T> Matrix<T>& Matrix<T>::operator=(const Matrix<T>& other) {
 	return *this;
 }
 
-template <class T> Matrix<T> operator<(Matrix<T>& first, Matrix<T>& second) {
-	Matrix<T> result{};
-	auto data1 = first.get();
-	auto data2 = second.get();
+template <class T> std::vector<bool> operator<(Matrix<T>& first, Matrix<T>& second) {
+	std::vector<bool> result{};
+	std::vector<T> data1 = first.get();
+	std::vector<T> data2 = second.get();
 	for (int i = 0; i < std::max(data1.size(), data2.size()); ++i) {
-		if (i < data1.size() && i >= data2.size())
-			result.push_back(data1.at(i));
+		if (i < data1.size() && i > data2.size())
+			result.push_back(true);
 		else
-			if (i >= data1.size() && i < data2.size())
-				result.push_back(data2.at(i));
+			if (i > data1.size() && i < data2.size())
+				result.push_back(false);
 			else
-				result.push_back(std::min(data1.at(i), data2.at(i)));
+				if (data1.at(i) < data2.at(i))
+					result.push_back(true);
+				else
+					result.push_back(false);
 	}
 	return result;
 }
@@ -128,8 +131,18 @@ template <class T> Matrix<T> Matrix<T>::transposed(const size_t n, const size_t 
 	return other;
 }
 
-template <class T> Matrix<T> where(Matrix<T> m1, Matrix<T>& m2, Matrix<T>& m3) {
-	return m1;
+template <class T> Matrix<T> where(std::vector<bool> boolVect, Matrix<T>& m1, Matrix<T>& m2) {
+	Matrix<T> result{};
+	std::vector<T> data1 = m1.get();
+	std::vector<T> data2 = m2.get();
+	for (int i = 0; i < boolVect.size(); ++i) {
+		if (boolVect.at(i) == true)
+			result.push_back(data1.at(i));
+		else
+			result.push_back(data2.at(i));
+	}
+	
+	return result;
 }
 
 template <class T> Matrix<T> abs(Matrix<T> matrix) {
