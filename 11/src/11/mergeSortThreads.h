@@ -27,24 +27,26 @@ void backProp(std::vector<std::pair<Iter, Iter>> data) {
 
 template <class Iter>
  void mergeSortThreads(Iter first, Iter last) {
-     size_t size = last - first;
-     size_t shift = int(0.5 + size/THREAD_MAX);
-     std::vector<std::pair<Iter, Iter>> backPropIters;
-     for (size_t i = 0; i < THREAD_MAX-1; ++i) {
-         auto a = first + shift*i;
-         auto b = first + shift*(i+1);
-        threads[i] = myThread([a, b]() { return mergeSortRecursive(a, b); });
-        threads[i].join();
-        backPropIters.push_back(std::pair<Iter, Iter>(a, b));
-     }
-     auto c = first + shift*(THREAD_MAX-1);
-     threads[THREAD_MAX-1] = myThread([c, last]() { return mergeSortRecursive(c, last); });
-     threads[THREAD_MAX-1].join();
-     backPropIters.push_back(std::pair<Iter, Iter>(c, last));
-
-    
-
-     backProp(backPropIters);
+    size_t size = last - first;
+    if (size > 100){
+        size_t shift = int(0.5 + size/THREAD_MAX);
+        std::vector<std::pair<Iter, Iter>> backPropIters;
+        for (size_t i = 0; i < THREAD_MAX-1; ++i) {
+            auto a = first + shift*i;
+            auto b = first + shift*(i+1);
+            threads[i] = myThread([a, b]() { return mergeSortRecursive(a, b); });
+            threads[i].join();
+            backPropIters.push_back(std::pair<Iter, Iter>(a, b));
+        }
+        auto c = first + shift*(THREAD_MAX-1);
+        threads[THREAD_MAX-1] = myThread([c, last]() { return mergeSortRecursive(c, last); });
+         threads[THREAD_MAX-1].join();
+        backPropIters.push_back(std::pair<Iter, Iter>(c, last));
+        backProp(backPropIters);
+    }
+    else {
+        mergeSortRecursive(first, last);
+    }
  } 
 
 long mergeSortThreadsStart(std::vector<int>& data) {

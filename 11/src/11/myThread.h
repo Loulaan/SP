@@ -32,7 +32,7 @@ public:
 	pid_t get_id() { return pid; }
 
 	~myThread(){
-		if(pid != NULL)
+		if(joinable())
 			kill(pid, SIGTERM);
 		delete[] stack;
 	}
@@ -56,10 +56,7 @@ public:
 	void join() {
 		// std::cout<<"void join()\n";
 		int status;
-		// CHECK(kill(pid, SIGCONT));
         CHECK(waitpid(pid, &status, 0));
-		// CHECK(kill(pid, SIGTERM));
-		pid = NULL;
     }
 
 private:
