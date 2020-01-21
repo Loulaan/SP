@@ -5,6 +5,17 @@
 #include <algorithm>
 
 
+TEST(mergeSorts, equality1) {
+	std::vector<int> val2;
+	for (int i=0; i<1; ++i){
+		val2.push_back(1);
+	}
+	std::vector<int> val1 = val2;
+	mergeSortRecursive(val1.begin(), val1.end());
+	auto time = mergeSortThreadsStart(val2);
+	EXPECT_EQ(val1, val2);
+}
+
 TEST(mergeSorts, equality10) {
 	std::vector<int> val2;
 	for (int i=0; i<10; ++i){
