@@ -7,8 +7,8 @@
 
 TEST(mergeSorts, equality1) {
 	std::vector<int> val2;
-	for (int i=0; i<1; ++i){
-		val2.push_back(1);
+	for (int i=0; i<13; ++i){
+		val2.push_back(13-i);
 	}
 	std::vector<int> val1 = val2;
 	mergeSortRecursive(val1.begin(), val1.end());

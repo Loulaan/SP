@@ -15,9 +15,18 @@ void backProp(std::vector<std::pair<Iter, Iter>> data) {
     std::vector<std::pair<Iter, Iter>> backPropIters;
     if (data.size() <= 1)
         return;
-    for (size_t i = 0; i < data.size() - 1; i += 2) {
-        mergeSort(data[i].first, data[i].second, data[i + 1].second);
-        backPropIters.push_back(std::pair<Iter, Iter>(data[i].first, data[i + 1].second));
+    if (data.size() % 2 == 0) {
+        for (size_t i = 0; i < data.size() - 1; i += 2) {
+            mergeSort(data[i].first, data[i].second, data[i + 1].second);
+            backPropIters.push_back(std::pair<Iter, Iter>(data[i].first, data[i + 1].second));
+        }
+    }
+    else {
+        for (size_t i = 0; i < data.size() - 2; i += 2) {
+            mergeSort(data[i].first, data[i].second, data[i + 1].second);
+            backPropIters.push_back(std::pair<Iter, Iter>(data[i].first, data[i + 1].second));
+        }
+        backPropIters.push_back(std::pair<Iter, Iter>(data[data.size()-1].first, data[data.size()-1].second));
     }
     
     backProp(backPropIters);
